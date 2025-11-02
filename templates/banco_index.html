@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Banco Nacional - Sistema Bancario</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --banco-azul: #1e3a8a;
+            --banco-dorado: #f59e0b;
+            --banco-gris: #6b7280;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .navbar {
+            background: rgba(255, 255, 255, 0.95) !important;
+            backdrop-filter: blur(10px);
+            border-bottom: 3px solid var(--banco-dorado);
+        }
+        
+        .banco-logo {
+            color: var(--banco-azul);
+            font-weight: bold;
+            font-size: 1.5em;
+        }
+        
+        .hero-section {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            margin-top: 50px;
+            padding: 40px;
+            color: white;
+        }
+        
+        .enunciado {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 10px;
+            padding: 30px;
+            margin: 30px 0;
+            color: #333;
+            border-left: 5px solid var(--banco-dorado);
+        }
+        
+        .btn-banco {
+            background: var(--banco-dorado);
+            border: none;
+            color: white;
+            font-weight: bold;
+            padding: 12px 30px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-banco:hover {
+            background: #d97706;
+            color: white;
+            transform: translateY(-2px);
+        }
+        
+        .feature-card {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            padding: 25px;
+            text-align: center;
+            color: white;
+            margin-bottom: 20px;
+            transition: transform 0.3s ease;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .feature-icon {
+            font-size: 3em;
+            color: var(--banco-dorado);
+            margin-bottom: 15px;
+        }
+        
+        .footer {
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 20px 0;
+            margin-top: 50px;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light fixed-top">
+        <div class="container">
+            <a class="navbar-brand banco-logo" href="/">
+                <i class="fas fa-university me-2"></i>
+                Banco Nacional
+            </a>
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link" href="/login">
+                    <i class="fas fa-sign-in-alt me-1"></i>
+                    Ingresar
+                </a>
+                <a class="nav-link" href="/cotizaciones">
+                    <i class="fas fa-chart-line me-1"></i>
+                    Cotizaciones
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container" style="margin-top: 100px;">
+        <div class="row justify-content-center">
+            <div class="col-md-10">
+                <div class="hero-section text-center">
+                    <h1 class="display-4 mb-4">
+                        <i class="fas fa-shield-alt me-3"></i>
+                        Banco Nacional
+                    </h1>
+                    <p class="lead mb-4">
+                        Tu seguridad financiera es nuestra prioridad
+                    </p>
+                </div>
+                
+
+                
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <i class="fas fa-lock"></i>
+                            </div>
+                            <h5>Seguridad Máxima</h5>
+                            <p>Protección avanzada para tus datos financieros</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <i class="fas fa-chart-line"></i>
+                            </div>
+                            <h5>Cotizaciones en Tiempo Real</h5>
+                            <p>Información actualizada del mercado financiero</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <h5>Gestión de Cuentas</h5>
+                            <p>Administra todas tus cuentas bancarias</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center mt-4">
+                    <a href="/login" class="btn btn-banco btn-lg me-3">
+                        <i class="fas fa-sign-in-alt me-2"></i>
+                        Acceder al Sistema
+                    </a>
+                    <a href="/cotizaciones" class="btn btn-outline-light btn-lg">
+                        <i class="fas fa-dollar-sign me-2"></i>
+                        Ver Cotizaciones
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="container text-center">
+            <p class="mb-0">
+                <i class="fas fa-shield-alt me-2"></i>
+                Banco Nacional - Sistema Seguro de Gestión Bancaria
+            </p>
+            <small class="text-muted">
+                Laboratorio de Seguridad - Solo para fines educativos
+            </small>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
