@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Desafíos de Seguridad - Banco Nacional</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #e74c3c;
+            --success-color: #27ae60;
+            --warning-color: #f39c12;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 40px 20px;
+        }
+        
+        .container-main {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 40px;
+            text-align: center;
+            margin-bottom: 40px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        .header h1 {
+            color: var(--primary-color);
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+        
+        .header p {
+            color: #7f8c8d;
+            font-size: 1.1em;
+        }
+        
+        .challenge-card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .challenge-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+        }
+        
+        .challenge-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #ecf0f1;
+        }
+        
+        .challenge-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            margin-right: 20px;
+        }
+        
+        .challenge-icon.rce {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            color: white;
+        }
+        
+        .challenge-icon.oauth {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+        }
+        
+        .challenge-title {
+            flex: 1;
+        }
+        
+        .challenge-title h3 {
+            margin: 0;
+            color: var(--primary-color);
+            font-weight: bold;
+        }
+        
+        .challenge-title .badge {
+            margin-top: 5px;
+        }
+        
+        .btn-challenge {
+            width: 100%;
+            padding: 15px;
+            font-size: 1.1em;
+            font-weight: bold;
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+        
+        .btn-challenge:hover {
+            transform: scale(1.02);
+        }
+        
+        .info-box {
+            background: #ecf0f1;
+            border-left: 4px solid #3498db;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 30px;
+        }
+        
+        .info-box h4 {
+            color: var(--primary-color);
+            margin-bottom: 15px;
+        }
+        
+        .info-box ul {
+            margin: 0;
+            padding-left: 20px;
+        }
+        
+        .info-box li {
+            margin-bottom: 8px;
+            color: #34495e;
+        }
+        
+        .footer {
+            text-align: center;
+            color: white;
+            margin-top: 40px;
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-main">
+        <div class="header">
+            <h1><i class="fas fa-shield-alt"></i> Desafíos de Seguridad</h1>
+            <p>Banco Nacional - Laboratorio de Pentesting Ético</p>
+            <p style="margin-top: 10px; font-size: 1em; color: #95a5a6;">
+                <i class="fas fa-flag"></i> 2 Desafíos disponibles: RCE y OAuth2 CSRF
+            </p>
+        </div>
+        
+        <div class="row">
+            <!-- Desafío 1: RCE -->
+            <div class="col-md-6">
+                <div class="challenge-card">
+                    <div class="challenge-header">
+                        <div class="challenge-icon rce">
+                            <i class="fas fa-terminal"></i>
+                        </div>
+                        <div class="challenge-title">
+                            <h3>Desafío 1: RCE</h3>
+                            <span class="badge bg-danger">Crítico</span>
+                            <span class="badge bg-secondary">Command Injection</span>
+                        </div>
+                    </div>
+                    
+                    <h5 class="mb-3"><i class="fas fa-book-open"></i> El Hackeo desde Adentro</h5>
+                    
+                    <p style="color: #7f8c8d; line-height: 1.6;">
+                        Julián Rodríguez fue despedido injustamente del Banco Nacional. 
+                        Antes de irse, te dejó sus credenciales para obtener información 
+                        comprometedora de la gerencia.
+                    </p>
+                    
+                    <div class="alert alert-info">
+                        <strong><i class="fas fa-key"></i> Credenciales filtradas:</strong><br>
+                        Usuario: <code>julian</code><br>
+                        Contraseña: <code>juli123</code>
+                    </div>
+                    
+                    <a href="/desafio/rce" class="btn btn-danger btn-challenge">
+                        <i class="fas fa-flag-checkered"></i> Iniciar Desafío
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Desafío 2: OAuth2 CSRF via State Parameter -->
+            <div class="col-md-6">
+                <div class="challenge-card">
+                    <div class="challenge-header">
+                        <div class="challenge-icon oauth">
+                            <i class="fas fa-user-secret"></i>
+                        </div>
+                        <div class="challenge-title">
+                            <h3>Desafío 2: OAuth2 CSRF</h3>
+                            <span class="badge bg-warning text-dark">Alto</span>
+                            <span class="badge bg-secondary">CSRF via State Parameter</span>
+                        </div>
+                    </div>
+                    
+                    <h5 class="mb-3"><i class="fas fa-book-open"></i> El Robo de Identidad</h5>
+                    
+                    <p style="color: #7f8c8d; line-height: 1.6;">
+                        María trabaja en RRHH del banco. Quieres vincular su cuenta bancaria 
+                        con tu propia cuenta de Google para acceder a información confidencial 
+                        de empleados.
+                    </p>
+                    
+                    <div class="alert alert-info">
+                        <strong><i class="fas fa-key"></i> Tus credenciales:</strong><br>
+                        Email: <code>test@google.com</code><br>
+                        Contraseña: <code>test123</code>
+                    </div>
+                    
+                    <a href="/desafio/oauth" class="btn btn-primary btn-challenge">
+                        <i class="fas fa-flag-checkered"></i> Iniciar Desafío
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="info-box">
+            <h4><i class="fas fa-info-circle"></i> Información Importante</h4>
+            <ul>
+                <li><strong>Banco Nacional (Target):</strong> <a href="http://127.0.0.1:5000" target="_blank">http://127.0.0.1:5000</a></li>
+                <li><strong>Objetivo:</strong> Encontrar y explotar vulnerabilidades de seguridad</li>
+                <li><strong>Verificación:</strong> Cada desafío tiene un código de verificación que debes encontrar</li>
+                <li><strong>Ética:</strong> Estos desafíos son solo para práctica educativa en entorno controlado</li>
+            </ul>
+        </div>
+        
+        <div class="footer">
+            <p><i class="fas fa-graduation-cap"></i> Proyecto Educativo de Seguridad Informática</p>
+            <p style="font-size: 0.9em;">⚠️ Solo para uso en entornos de práctica local</p>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

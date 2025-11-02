@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Desafío OAuth2 Avanzado</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 40px 20px;
+        }
+        .main-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .challenge-card {
+            background: white;
+            border-radius: 15px;
+            padding: 40px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        }
+        .option-card {
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 20px;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        .option-card:hover {
+            border-color: #667eea;
+            box-shadow: 0 5px 20px rgba(102,126,234,0.3);
+            transform: translateY(-3px);
+        }
+        .option-card.selected {
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+        .difficulty {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: bold;
+        }
+        .difficulty.easy {
+            background: #d4edda;
+            color: #155724;
+        }
+        .difficulty.medium {
+            background: #fff3cd;
+            color: #856404;
+        }
+        .difficulty.hard {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        .tools-required {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        .btn-verify {
+            background: #667eea;
+            border: none;
+            color: white;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        .btn-verify:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102,126,234,0.4);
+        }
+        .result-box {
+            margin-top: 20px;
+            padding: 20px;
+            border-radius: 8px;
+            display: none;
+        }
+        .result-box.success {
+            background: #d4edda;
+            border: 2px solid #28a745;
+            color: #155724;
+        }
+        .result-box.error {
+            background: #f8d7da;
+            border: 2px solid #dc3545;
+            color: #721c24;
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <div class="challenge-card">
+            <h1 class="text-center mb-4">
+                <i class="fas fa-shield-alt me-2"></i>
+                Desafío OAuth2: Análisis de Vulnerabilidades
+            </h1>
+            <p class="text-center text-muted mb-5">
+                Analiza el flujo OAuth2 del Banco Nacional usando Burp Suite para identificar vulnerabilidades críticas
+            </p>
+            
+            <div class="tools-required">
+                <h5><i class="fas fa-tools me-2"></i>Herramientas Requeridas:</h5>
+                <ul class="mb-0">
+                    <li><strong>Burp Suite</strong> - Para interceptar y modificar peticiones HTTP</li>
+                    <li><strong>Navegador</strong> - Configurado para usar proxy de Burp (127.0.0.1:8080)</li>
+                    <li><strong>Banco Nacional</strong> - http://127.0.0.1:5000</li>
+                </ul>
+            </div>
+            
+            <h4 class="mt-5 mb-3">Selecciona una Vulnerabilidad para Explotar:</h4>
+            
+            <!-- Opción 1: CSRF -->
+            <div class="option-card" onclick="selectOption('csrf')">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <h5><i class="fas fa-bug me-2 text-danger"></i>1. CSRF via State Parameter</h5>
+                    <span class="difficulty hard">Difícil</span>
+                </div>
+                <p class="text-muted mb-2">
+                    <strong>Vulnerabilidad:</strong> El parámetro <code>state</code> no se valida correctamente, permitiendo ataques CSRF.
+                </p>
+                <p class="small mb-0">
+                    <strong>Objetivo:</strong> Manipular el flujo OAuth para vincular cuentas ajenas. Requiere interceptar y modificar el parámetro <code>state</code>.
+                </p>
+            </div>
+            
+            <!-- Opción 2: Code Reuse -->
+            <div class="option-card" onclick="selectOption('reuse')">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <h5><i class="fas fa-sync-alt me-2 text-warning"></i>2. Authorization Code Reuse</h5>
+                    <span class="difficulty medium">Medio</span>
+                </div>
+                <p class="text-muted mb-2">
+                    <strong>Vulnerabilidad:</strong> Los códigos de autorización NO se invalidan después del primer uso.
+                </p>
+                <p class="small mb-0">
+                    <strong>Objetivo:</strong> Reutilizar un código de autorización múltiples veces para obtener nuevos tokens. Usa Burp Repeater.
+                </p>
+            </div>
+            
+            <!-- Opción 3: Client Secret -->
+            <div class="option-card" onclick="selectOption('secret')">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <h5><i class="fas fa-key me-2 text-success"></i>3. Client Secret Exposure</h5>
+                    <span class="difficulty easy">Fácil</span>
+                </div>
+                <p class="text-muted mb-2">
+                    <strong>Vulnerabilidad:</strong> El <code>client_secret</code> está expuesto en endpoints públicos.
+                </p>
+                <p class="small mb-0">
+                    <strong>Objetivo:</strong> Encontrar el CLIENT_SECRET en páginas de debugging o información del banco.
+                </p>
+            </div>
+            
+            <!-- Opción 4: Redirect URI -->
+            <div class="option-card" onclick="selectOption('redirect')">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <h5><i class="fas fa-exchange-alt me-2 text-info"></i>4. Redirect URI Manipulation</h5>
+                    <span class="difficulty medium">Medio</span>
+                </div>
+                <p class="text-muted mb-2">
+                    <strong>Vulnerabilidad:</strong> El <code>redirect_uri</code> NO se valida contra una whitelist.
+                </p>
+                <p class="small mb-0">
+                    <strong>Objetivo:</strong> Modificar el redirect_uri para interceptar códigos de autorización en tu propia URL.
+                </p>
+            </div>
+            
+            <!-- Opción 5: Information Disclosure -->
+            <div class="option-card" onclick="selectOption('disclosure')">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <h5><i class="fas fa-user-secret me-2 text-primary"></i>5. Token Information Disclosure</h5>
+                    <span class="difficulty easy">Fácil</span>
+                </div>
+                <p class="text-muted mb-2">
+                    <strong>Vulnerabilidad:</strong> El endpoint <code>/oauth/token</code> expone información sensible del usuario.
+                </p>
+                <p class="small mb-0">
+                    <strong>Objetivo:</strong> Obtener el <code>user_id</code> de un usuario analizando la respuesta del token endpoint.
+                </p>
+            </div>
+            
+            <div class="mt-5">
+                <h5><i class="fas fa-check-circle me-2"></i>Verificación</h5>
+                <input type="hidden" id="tipo" value="secret">
+                <div class="input-group mt-3">
+                    <input type="text" id="codigo" class="form-control" placeholder="Ingresa tu evidencia aquí (código, secret, user_id, etc.)">
+                    <button class="btn btn-verify" onclick="verificarVulnerabilidad()">
+                        <i class="fas fa-search me-2"></i>Verificar
+                    </button>
+                </div>
+                <div id="resultado" class="result-box"></div>
+                
+                <div class="alert alert-info mt-4">
+                    <strong><i class="fas fa-info-circle me-2"></i>Ayuda:</strong>
+                    Lee el archivo <code>ENUNCIADOS_OAUTH2.md</code> para instrucciones detalladas de cada vulnerabilidad.
+                </div>
+            </div>
+        </div>
+        
+        <div class="text-center">
+            <a href="/" class="btn btn-secondary">
+                <i class="fas fa-arrow-left me-2"></i>Volver a Desafíos
+            </a>
+        </div>
+    </div>
+
+    <script>
+        function selectOption(tipo) {
+            // Remover selección anterior
+            document.querySelectorAll('.option-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            
+            // Seleccionar nueva opción
+            event.currentTarget.classList.add('selected');
+            document.getElementById('tipo').value = tipo;
+            
+            // Limpiar resultado anterior
+            document.getElementById('resultado').style.display = 'none';
+            document.getElementById('codigo').value = '';
+        }
+        
+        async function verificarVulnerabilidad() {
+            const codigo = document.getElementById('codigo').value.trim();
+            const tipo = document.getElementById('tipo').value;
+            const resultado = document.getElementById('resultado');
+            
+            if (!codigo) {
+                resultado.className = 'result-box error';
+                resultado.style.display = 'block';
+                resultado.innerHTML = '<i class="fas fa-times-circle me-2"></i>Por favor ingresa la evidencia de la vulnerabilidad';
+                return;
+            }
+            
+            try {
+                const response = await fetch('/verificar/oauth', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ codigo: codigo, tipo: tipo })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    resultado.className = 'result-box success';
+                    resultado.innerHTML = `
+                        <h5><i class="fas fa-trophy me-2"></i>${data.mensaje}</h5>
+                        <p>${data.detalle}</p>
+                        <p><strong>🎉 ¡Vulnerabilidad OAuth2 Explotada Exitosamente!</strong></p>
+                    `;
+                } else {
+                    resultado.className = 'result-box error';
+                    resultado.innerHTML = `
+                        <h5><i class="fas fa-times-circle me-2"></i>${data.mensaje}</h5>
+                        <p><strong>💡 Pista:</strong> ${data.pista}</p>
+                    `;
+                }
+                
+                resultado.style.display = 'block';
+            } catch (error) {
+                resultado.className = 'result-box error';
+                resultado.style.display = 'block';
+                resultado.innerHTML = '<i class="fas fa-exclamation-triangle me-2"></i>Error de conexión. Asegúrate de que el servidor esté corriendo.';
+            }
+        }
+        
+        // Permitir Enter para verificar
+        document.getElementById('codigo').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                verificarVulnerabilidad();
+            }
+        });
+    </script>
+</body>
+</html>

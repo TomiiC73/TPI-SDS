@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Banco Nacional - Pago de Facturas</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --banco-azul: #1e3a8a;
+            --banco-dorado: #f59e0b;
+        }
+        body {
+            background: #f8fafc;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .navbar {
+            background: white;
+            border-bottom: 3px solid var(--banco-dorado);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        .banco-logo {
+            color: var(--banco-azul);
+            font-weight: bold;
+            font-size: 1.5em;
+        }
+        .main-card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            margin-top: 30px;
+        }
+        .form-control {
+            border-radius: 8px;
+            padding: 12px;
+            border: 2px solid #e5e7eb;
+        }
+        .form-control:focus {
+            border-color: var(--banco-dorado);
+            box-shadow: 0 0 0 0.2rem rgba(245, 158, 11, 0.25);
+        }
+        .btn-primary {
+            background: var(--banco-dorado);
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+        .btn-primary:hover {
+            background: #d97706;
+            transform: translateY(-2px);
+        }
+        .result-box {
+            background: #f0fdf4;
+            border: 2px solid #22c55e;
+            border-radius: 8px;
+            padding: 25px;
+            margin-top: 20px;
+            white-space: pre-wrap;
+            font-family: 'Courier New', monospace;
+        }
+        .empresa-card {
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .empresa-card:hover {
+            border-color: var(--banco-dorado);
+            background: #fef3c7;
+        }
+        .empresa-card.selected {
+            border-color: var(--banco-dorado);
+            background: #fef3c7;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light">
+        <div class="container">
+            <a class="navbar-brand banco-logo" href="/">
+                <i class="fas fa-university me-2"></i>Banco Nacional
+            </a>
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link" href="/dashboard">
+                    <i class="fas fa-tachometer-alt me-1"></i>Dashboard
+                </a>
+                <a class="nav-link" href="/logout">
+                    <i class="fas fa-sign-out-alt me-1"></i>Salir
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="main-card">
+            <h2><i class="fas fa-file-invoice-dollar me-2 text-success"></i>Pago de Facturas</h2>
+            <p class="text-muted">Pague sus facturas de servicios de forma rápida y segura</p>
+            
+            <form method="POST" class="mt-4">
+                <div class="row">
+                    <div class="col-md-12 mb-4">
+                        <label class="form-label"><strong>Seleccione Empresa:</strong></label>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="empresa-card" onclick="selectEmpresa('Edenor')">
+                                    <i class="fas fa-bolt text-warning fa-2x mb-2"></i>
+                                    <h6>Edenor</h6>
+                                    <small class="text-muted">Electricidad</small>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="empresa-card" onclick="selectEmpresa('Aysa')">
+                                    <i class="fas fa-tint text-info fa-2x mb-2"></i>
+                                    <h6>Aysa</h6>
+                                    <small class="text-muted">Agua</small>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="empresa-card" onclick="selectEmpresa('Metrogas')">
+                                    <i class="fas fa-fire text-danger fa-2x mb-2"></i>
+                                    <h6>Metrogas</h6>
+                                    <small class="text-muted">Gas</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mt-3">
+                            <div class="col-md-4">
+                                <div class="empresa-card" onclick="selectEmpresa('Telecom')">
+                                    <i class="fas fa-phone text-primary fa-2x mb-2"></i>
+                                    <h6>Telecom</h6>
+                                    <small class="text-muted">Teléfono</small>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="empresa-card" onclick="selectEmpresa('Fibertel')">
+                                    <i class="fas fa-wifi text-success fa-2x mb-2"></i>
+                                    <h6>Fibertel</h6>
+                                    <small class="text-muted">Internet</small>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="empresa-card" onclick="selectEmpresa('Otra')">
+                                    <i class="fas fa-building text-secondary fa-2x mb-2"></i>
+                                    <h6>Otra</h6>
+                                    <small class="text-muted">Otro servicio</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <input type="hidden" id="empresa" name="empresa" value="" required>
+                
+                <div class="mb-3">
+                    <label for="numero_factura" class="form-label">
+                        <i class="fas fa-hashtag me-1"></i>Número de Factura
+                    </label>
+                    <input type="text" class="form-control" id="numero_factura" name="numero_factura" 
+                           placeholder="Ej: 1234567890" required>
+                    <small class="text-muted">Ingrese el número que aparece en su factura</small>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="monto" class="form-label">
+                        <i class="fas fa-dollar-sign me-1"></i>Monto a Pagar
+                    </label>
+                    <input type="text" class="form-control" id="monto" name="monto" 
+                           placeholder="0.00" required>
+                    <small class="text-muted">Monto en pesos argentinos</small>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="cuenta_debito" class="form-label">
+                        <i class="fas fa-credit-card me-1"></i>Cuenta a Debitar
+                    </label>
+                    <select class="form-control" id="cuenta_debito" name="cuenta_debito">
+                        <option>Cuenta Corriente - ****7890</option>
+                        <option>Caja de Ahorro - ****3456</option>
+                    </select>
+                </div>
+                
+                <div class="d-flex justify-content-between align-items-center mt-4">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-check me-2"></i>Confirmar Pago
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary" onclick="location.reload()">
+                        <i class="fas fa-redo me-2"></i>Limpiar
+                    </button>
+                </div>
+            </form>
+            
+            {% if confirmacion %}
+            <div class="result-box">
+                <i class="fas fa-check-circle me-2"></i>{{ confirmacion }}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <script>
+        function selectEmpresa(nombre) {
+            // Remover selección anterior
+            document.querySelectorAll('.empresa-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            
+            // Seleccionar nueva empresa
+            event.currentTarget.classList.add('selected');
+            document.getElementById('empresa').value = nombre;
+        }
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iniciar sesión - Google</title>
+    <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Roboto', Arial, sans-serif;
+            background: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: #202124;
+        }
+        
+        .login-container {
+            background: white;
+            border: 1px solid #dadce0;
+            border-radius: 8px;
+            padding: 48px 40px 36px;
+            width: 450px;
+            max-width: 90%;
+            box-shadow: 0 1px 3px 0 rgba(60,64,67,0.3), 0 4px 8px 3px rgba(60,64,67,0.15);
+        }
+        
+        .logo {
+            text-align: center;
+            margin-bottom: 12px;
+        }
+        
+        .google-logo {
+            font-size: 24px;
+            letter-spacing: -0.5px;
+            font-weight: 400;
+        }
+        
+        .google-g {
+            color: #4285f4;
+        }
+        
+        .google-o1 {
+            color: #ea4335;
+        }
+        
+        .google-o2 {
+            color: #fbbc04;
+        }
+        
+        .google-g2 {
+            color: #4285f4;
+        }
+        
+        .google-l {
+            color: #34a853;
+        }
+        
+        .google-e {
+            color: #ea4335;
+        }
+        
+        .form-title {
+            color: #202124;
+            font-size: 24px;
+            font-weight: 400;
+            margin-bottom: 8px;
+            text-align: center;
+            font-family: 'Google Sans', Roboto, Arial, sans-serif;
+        }
+        
+        .form-subtitle {
+            color: #202124;
+            font-size: 16px;
+            margin-bottom: 24px;
+            text-align: center;
+            font-weight: 400;
+        }
+        
+        .form-group {
+            margin-bottom: 24px;
+        }
+        
+        input[type="email"],
+        input[type="password"] {
+            width: 100%;
+            padding: 13px 15px;
+            border: 1px solid #dadce0;
+            border-radius: 4px;
+            font-size: 16px;
+            font-family: Roboto, Arial, sans-serif;
+            transition: all 0.2s;
+            background: transparent;
+        }
+        
+        input[type="email"]:hover,
+        input[type="password"]:hover {
+            border-color: #202124;
+            box-shadow: 0 1px 6px 0 rgba(32,33,36,0.28);
+        }
+        
+        input[type="email"]:focus,
+        input[type="password"]:focus {
+            outline: none;
+            border-color: #1a73e8;
+            border-width: 2px;
+            padding: 12px 14px;
+        }
+        
+        .btn-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 32px;
+        }
+        
+        .btn-text {
+            color: #1a73e8;
+            font-size: 14px;
+            font-weight: 500;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0;
+            font-family: 'Google Sans', Roboto, Arial, sans-serif;
+        }
+        
+        .btn-text:hover {
+            text-decoration: underline;
+        }
+        
+        .btn-primary {
+            background: #1a73e8;
+            color: white;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.2s;
+            font-family: 'Google Sans', Roboto, Arial, sans-serif;
+            letter-spacing: 0.25px;
+        }
+        
+        .btn-primary:hover {
+            background: #1765cc;
+            box-shadow: 0 1px 2px 0 rgba(60,64,67,0.3), 0 1px 3px 1px rgba(60,64,67,0.15);
+        }
+        
+        .btn-primary:active {
+            background: #1765cc;
+            box-shadow: 0 1px 2px 0 rgba(60,64,67,0.3), 0 2px 6px 2px rgba(60,64,67,0.15);
+        }
+        
+        .alert {
+            padding: 12px 16px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            text-align: center;
+        }
+        
+        .alert-error {
+            background: #fce8e6;
+            color: #c5221f;
+            border: 1px solid #f1aeb5;
+        }
+        
+        .info-box {
+            background: #f1f3f4;
+            border-radius: 8px;
+            padding: 16px;
+            margin-top: 24px;
+        }
+        
+        .info-box h3 {
+            color: #5f6368;
+            font-size: 12px;
+            font-weight: 500;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+        }
+        
+        .info-box p {
+            color: #5f6368;
+            font-size: 13px;
+            line-height: 1.6;
+            margin: 6px 0;
+        }
+        
+        .info-box code {
+            background: #fff;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Roboto Mono', monospace;
+            font-size: 12px;
+            color: #1a73e8;
+        }
+        
+        .footer {
+            text-align: center;
+            margin-top: 24px;
+            padding-top: 24px;
+            border-top: 1px solid #dadce0;
+        }
+        
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 24px;
+            margin-bottom: 16px;
+        }
+        
+        .footer-link {
+            color: #5f6368;
+            font-size: 12px;
+            text-decoration: none;
+        }
+        
+        .footer-link:hover {
+            color: #202124;
+        }
+        
+        .footer-text {
+            color: #5f6368;
+            font-size: 12px;
+        }
+        
+        select.language-select {
+            background: transparent;
+            border: 1px solid #dadce0;
+            border-radius: 4px;
+            padding: 6px 32px 6px 12px;
+            font-size: 14px;
+            color: #5f6368;
+            cursor: pointer;
+            margin-bottom: 16px;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="logo">
+            <div class="google-logo">
+                <span class="google-g">G</span><span class="google-o1">o</span><span class="google-o2">o</span><span class="google-g2">g</span><span class="google-l">l</span><span class="google-e">e</span>
+            </div>
+        </div>
+        
+        <h2 class="form-title">Iniciar sesión</h2>
+        <p class="form-subtitle">Usa tu Cuenta de Google</p>
+        
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        
+        <form method="POST" action="{{ url_for('oauth_google_login', redirect_uri=redirect_uri, state=state, client_id=client_id) }}">
+            <div class="form-group">
+                <input type="email" id="email" name="email" required 
+                       placeholder="Correo electrónico o teléfono" autocomplete="email">
+            </div>
+            
+            <div class="form-group">
+                <input type="password" id="password" name="password" required 
+                       placeholder="Introduce tu contraseña" autocomplete="current-password">
+            </div>
+            
+            <div class="btn-container">
+                <button type="button" class="btn-text">¿Has olvidado tu correo electrónico?</button>
+                <button type="submit" class="btn-primary">Siguiente</button>
+            </div>
+        </form>
+        
+        <div class="info-box">
+            <h3>Cuentas de prueba</h3>
+            <p><code>usuario@google.com</code> / <code>google123</code></p>
+            <p><code>admin@google.com</code> / <code>admin123</code></p>
+            <p><code>test@google.com</code> / <code>test123</code></p>
+        </div>
+        
+        <div class="footer">
+            <div class="footer-links">
+                <a href="#" class="footer-link">Ayuda</a>
+                <a href="#" class="footer-link">Privacidad</a>
+                <a href="#" class="footer-link">Condiciones</a>
+            </div>
+            <select class="language-select">
+                <option value="es">Español</option>
+                <option value="en">English</option>
+            </select>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Autorización - Google</title>
+    <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Roboto', Arial, sans-serif;
+            background: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+            color: #202124;
+        }
+        
+        .authorize-container {
+            background: white;
+            border: 1px solid #dadce0;
+            border-radius: 8px;
+            padding: 48px 40px 36px;
+            width: 520px;
+            max-width: 100%;
+            box-shadow: 0 1px 3px 0 rgba(60,64,67,0.3), 0 4px 8px 3px rgba(60,64,67,0.15);
+        }
+        
+        .logo {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+        
+        .google-logo {
+            font-size: 22px;
+            letter-spacing: -0.5px;
+            font-weight: 400;
+        }
+        
+        .google-g {
+            color: #4285f4;
+        }
+        
+        .google-o1 {
+            color: #ea4335;
+        }
+        
+        .google-o2 {
+            color: #fbbc04;
+        }
+        
+        .google-g2 {
+            color: #4285f4;
+        }
+        
+        .google-l {
+            color: #34a853;
+        }
+        
+        .google-e {
+            color: #ea4335;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            background: #f1f3f4;
+            border-radius: 24px;
+            margin-bottom: 24px;
+            border: 1px solid #e8eaed;
+        }
+        
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #4285f4 0%, #34a853 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 18px;
+            font-weight: 500;
+            margin-right: 12px;
+        }
+        
+        .user-details h3 {
+            color: #202124;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 2px;
+            font-family: 'Google Sans', Roboto, Arial, sans-serif;
+        }
+        
+        .user-details p {
+            color: #5f6368;
+            font-size: 13px;
+        }
+        
+        .consent-header {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+        
+        .app-icon {
+            width: 64px;
+            height: 64px;
+            background: #1a73e8;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 16px;
+            font-size: 32px;
+        }
+        
+        .consent-title {
+            color: #202124;
+            font-size: 22px;
+            font-weight: 400;
+            margin-bottom: 8px;
+            font-family: 'Google Sans', Roboto, Arial, sans-serif;
+        }
+        
+        .consent-subtitle {
+            color: #5f6368;
+            font-size: 14px;
+        }
+        
+        .app-info {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 24px;
+            border: 1px solid #e8eaed;
+        }
+        
+        .app-info h4 {
+            color: #202124;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 16px;
+            font-family: 'Google Sans', Roboto, Arial, sans-serif;
+        }
+        
+        .permissions-list {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .permissions-list li {
+            padding: 10px 0;
+            display: flex;
+            align-items: flex-start;
+            color: #5f6368;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        
+        .permissions-list li::before {
+            content: "•";
+            color: #5f6368;
+            font-weight: bold;
+            margin-right: 12px;
+            font-size: 18px;
+            line-height: 1.4;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            margin-top: 32px;
+        }
+        
+        .btn {
+            padding: 10px 24px;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
+            font-family: 'Google Sans', Roboto, Arial, sans-serif;
+            letter-spacing: 0.25px;
+        }
+        
+        .btn-primary {
+            background: #1a73e8;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #1765cc;
+            box-shadow: 0 1px 2px 0 rgba(60,64,67,0.3), 0 1px 3px 1px rgba(60,64,67,0.15);
+        }
+        
+        .btn-secondary {
+            background: white;
+            color: #1a73e8;
+            border: 1px solid #dadce0;
+        }
+        
+        .btn-secondary:hover {
+            background: #f8f9fa;
+            border-color: #d2d4d8;
+        }
+        
+        .footer {
+            text-align: center;
+            margin-top: 24px;
+            color: #5f6368;
+            font-size: 12px;
+            line-height: 1.6;
+        }
+        
+        .learn-more {
+            color: #1a73e8;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        .learn-more:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="authorize-container">
+        <div class="logo">
+            <div class="google-logo">
+                <span class="google-g">G</span><span class="google-o1">o</span><span class="google-o2">o</span><span class="google-g2">g</span><span class="google-l">l</span><span class="google-e">e</span>
+            </div>
+        </div>
+        
+        <div class="user-info">
+            <div class="user-avatar">
+                {{ user_info.name[0].upper() }}
+            </div>
+            <div class="user-details">
+                <h3>{{ user_info.name }}</h3>
+                <p>{{ user_info.email }}</p>
+            </div>
+        </div>
+        
+        <div class="consent-header">
+            <div class="app-icon">🏦</div>
+            <h2 class="consent-title">Banco Nacional quiere acceder a tu Cuenta de Google</h2>
+            <p class="consent-subtitle">Esto permitirá que Banco Nacional:</p>
+        </div>
+        
+        <div class="app-info">
+            <ul class="permissions-list">
+                <li>Vea tu información personal, incluidos los datos que hayas hecho públicos</li>
+                <li>Vea tu dirección de correo electrónico principal de la Cuenta de Google</li>
+                <li>Asocie tu nombre, dirección de correo electrónico e imagen de perfil a tu cuenta bancaria</li>
+            </ul>
+        </div>
+        
+        <form method="POST" action="{{ url_for('oauth_google_consent') }}">
+            <input type="hidden" name="redirect_uri" value="{{ redirect_uri }}">
+            <input type="hidden" name="state" value="{{ state }}">
+            <input type="hidden" name="client_id" value="{{ client_id }}">
+            <input type="hidden" name="scope" value="{{ scope }}">
+            
+            <div class="button-group">
+                <button type="button" class="btn btn-secondary" onclick='window.location.href="{{ url_for("index") }}";'>
+                    Cancelar
+                </button>
+                <button type="submit" class="btn btn-primary">
+                    Permitir
+                </button>
+            </div>
+        </form>
+        
+        <div class="footer">
+            <p>
+                Asegúrate de que confías en Banco Nacional.<br>
+                Puede que Google <a href="#" class="learn-more">comparta tu nombre, dirección de correo electrónico e imagen de perfil</a> con Banco Nacional.
+            </p>
+        </div>
+    </div>
+</body>
+</html>

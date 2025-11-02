@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OAuth Credentials - FakeGoogle</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Courier New', monospace;
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 40px;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            color: #4ec9b0;
+            font-size: 36px;
+            margin-bottom: 16px;
+            text-align: center;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #ce9178;
+            font-size: 18px;
+            margin-bottom: 40px;
+        }
+        
+        .warning-banner {
+            background: linear-gradient(135deg, #d32f2f 0%, #f44336 100%);
+            padding: 24px;
+            border-radius: 8px;
+            margin-bottom: 32px;
+            border: 2px solid #ff5252;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+        }
+        
+        .warning-banner h2 {
+            color: white;
+            font-size: 24px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .warning-banner h2::before {
+            content: "🚨";
+            margin-right: 12px;
+            font-size: 32px;
+        }
+        
+        .warning-banner p {
+            color: #ffebee;
+            font-size: 16px;
+        }
+        
+        .section {
+            background: #252526;
+            border: 1px solid #3e3e42;
+            border-radius: 8px;
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+        
+        .section h3 {
+            color: #569cd6;
+            font-size: 20px;
+            margin-bottom: 16px;
+            border-bottom: 2px solid #3e3e42;
+            padding-bottom: 8px;
+        }
+        
+        .credential-item {
+            background: #1e1e1e;
+            border-left: 4px solid #4ec9b0;
+            padding: 16px;
+            margin: 12px 0;
+            border-radius: 4px;
+        }
+        
+        .credential-label {
+            color: #9cdcfe;
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+        
+        .credential-value {
+            color: #ce9178;
+            font-size: 16px;
+            word-break: break-all;
+            background: #2d2d30;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-family: 'Consolas', monospace;
+        }
+        
+        .users-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 16px;
+        }
+        
+        .user-card {
+            background: #1e1e1e;
+            border: 1px solid #3e3e42;
+            border-radius: 8px;
+            padding: 16px;
+        }
+        
+        .user-card h4 {
+            color: #4ec9b0;
+            margin-bottom: 12px;
+            font-size: 16px;
+        }
+        
+        .user-card p {
+            color: #d4d4d4;
+            font-size: 14px;
+            margin: 6px 0;
+        }
+        
+        .user-card span {
+            color: #ce9178;
+        }
+        
+        .exploit-section {
+            background: linear-gradient(135deg, #311b92 0%, #512da8 100%);
+            border: 2px solid #7e57c2;
+            border-radius: 8px;
+            padding: 24px;
+            margin-top: 32px;
+        }
+        
+        .exploit-section h3 {
+            color: #b39ddb;
+            border-bottom: 2px solid #7e57c2;
+        }
+        
+        .vulnerability-list {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .vulnerability-list li {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 16px;
+            margin: 12px 0;
+            border-left: 4px solid #ff5252;
+            border-radius: 4px;
+        }
+        
+        .vulnerability-list li strong {
+            color: #ff8a80;
+            display: block;
+            margin-bottom: 8px;
+            font-size: 16px;
+        }
+        
+        .code-block {
+            background: #1e1e1e;
+            border: 1px solid #3e3e42;
+            border-radius: 4px;
+            padding: 16px;
+            margin: 12px 0;
+            overflow-x: auto;
+        }
+        
+        .code-block pre {
+            margin: 0;
+            color: #d4d4d4;
+            font-size: 14px;
+        }
+        
+        .btn-copy {
+            background: #0e639c;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            margin-top: 8px;
+            transition: background 0.2s;
+        }
+        
+        .btn-copy:hover {
+            background: #1177bb;
+        }
+        
+        .footer {
+            text-align: center;
+            margin-top: 48px;
+            padding-top: 24px;
+            border-top: 1px solid #3e3e42;
+            color: #858585;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>� Documentación OAuth2 - Google Integration</h1>
+        <p class="subtitle">Información de configuración del sistema</p>
+        
+        <div class="section">
+            <h3>🔑 Configuración OAuth2</h3>
+            
+            <div class="credential-item">
+                <div class="credential-label">CLIENT_ID:</div>
+                <div class="credential-value">{{ client_id }}</div>
+                <button class="btn-copy" onclick="copyToClipboard('{{ client_id }}')">📋 Copiar</button>
+            </div>
+            
+            <div class="credential-item">
+                <div class="credential-label">CLIENT_SECRET:</div>
+                <div class="credential-value">{{ client_secret }}</div>
+                <button class="btn-copy" onclick="copyToClipboard('{{ client_secret }}')">📋 Copiar</button>
+            </div>
+            
+            <div class="credential-item">
+                <div class="credential-label">JWT_SECRET:</div>
+                <div class="credential-value">{{ jwt_secret }}</div>
+                <button class="btn-copy" onclick="copyToClipboard('{{ jwt_secret }}')">📋 Copiar</button>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h3>👥 Usuarios de Google Disponibles</h3>
+            <div class="users-grid">
+                {% for email, info in users.items() %}
+                <div class="user-card">
+                    <h4>{{ info.name }}</h4>
+                    <p><strong>Email:</strong> <span>{{ email }}</span></p>
+                    <p><strong>Password:</strong> <span>{{ info.password }}</span></p>
+                    <p><strong>User ID:</strong> <span>{{ info.user_id }}</span></p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        
+        <div class="section">
+            <h3>🔗 Endpoints Disponibles</h3>
+            <div class="code-block">
+                <pre>GET  /oauth/fakegoogle/login        - Pantalla de login
+GET  /oauth/fakegoogle/authorize    - Pantalla de autorización
+POST /oauth/fakegoogle/grant        - Otorgar permisos
+GET  /oauth/fakegoogle/callback     - Callback OAuth
+POST /oauth/fakegoogle/token        - Obtener token (API)
+GET  /oauth/info                    - Esta página</pre>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>Google OAuth2 Integration | Banco Nacional</p>
+            <p style="margin-top: 8px;">Documentación de desarrolladores</p>
+        </div>
+    </div>
+    
+    <script>
+        // VULNERABILIDAD: Client Secret expuesto en JavaScript
+        const OAUTH_CONFIG = {
+            client_id: '{{ client_id }}',
+            client_secret: '{{ client_secret }}',  // ¡NUNCA hacer esto en producción!
+            jwt_secret: '{{ jwt_secret }}',
+            auth_url: '/oauth/fakegoogle/login',
+            token_url: '/oauth/fakegoogle/token'
+        };
+        
+        console.log('🔓 VULNERABILIDAD DETECTADA:');
+        console.log('Las credenciales OAuth están expuestas en el código JavaScript:');
+        console.log(OAUTH_CONFIG);
+        
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                alert('✓ Copiado al portapapeles: ' + text);
+            });
+        }
+        
+        // Mostrar configuración en consola para hackers
+        console.log('%c⚠️ CREDENCIALES EXPUESTAS', 'color: red; font-size: 20px; font-weight: bold;');
+        console.log('%cPuedes usar estas credenciales para explotar el sistema OAuth', 'color: orange; font-size: 14px;');
+    </script>
+</body>
+</html>
+    <script>
+        // Configuración OAuth
+        const OAUTH_CONFIG = {
+            client_id: '{{ client_id }}',
+            client_secret: '{{ client_secret }}',
+            jwt_secret: '{{ jwt_secret }}',
+            auth_url: '/oauth/fakegoogle/login',
+            token_url: '/oauth/fakegoogle/token'
+        };
+        
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                alert('✓ Copiado al portapapeles: ' + text);
+            });
+        }
+    </script>
