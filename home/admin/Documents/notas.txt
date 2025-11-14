@@ -1,0 +1,11 @@
+NOTAS DEL ADMINISTRADOR
+=======================
+
+TODO:
+- Revisar logs de seguridad
+- Actualizar certificados SSL
+- Cambiar contraseñas por defecto
+- Revisar script de auditoría en /opt/scripts
+
+IMPORTANTE: El script de pentesting está en algún lugar del sistema.
+Buscar en directorios poco comunes...
