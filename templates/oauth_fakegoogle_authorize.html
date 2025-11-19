@@ -272,9 +272,9 @@
             <input type="hidden" name="scope" value="{{ scope }}">
             
             <div class="button-group">
-                <button type="button" class="btn btn-secondary" onclick='window.location.href="{{ url_for("index") }}";'>
+                <a href="{{ url_for('index') }}" class="btn btn-secondary" role="button">
                     Cancelar
-                </button>
+                </a>
                 <button type="submit" class="btn btn-primary">
                     Permitir
                 </button>

@@ -213,10 +213,9 @@ def main():
         print(f"\n{Fore.CYAN}{'='*60}")
         print(f"{Fore.YELLOW}Selecciona una opción:{Style.RESET_ALL}")
         print(f"{Fore.GREEN}1.{Style.RESET_ALL} Demo - Comandos Linux (WSL)")
-        print(f"{Fore.GREEN}2.{Style.RESET_ALL} Demo - Comandos Windows")
-        print(f"{Fore.GREEN}3.{Style.RESET_ALL} Ejecutar comando personalizado")
-        print(f"{Fore.GREEN}4.{Style.RESET_ALL} Comando único y salir")
-        print(f"{Fore.GREEN}5.{Style.RESET_ALL} Salir")
+        print(f"{Fore.GREEN}2.{Style.RESET_ALL} Ejecutar comando personalizado")
+        print(f"{Fore.GREEN}3.{Style.RESET_ALL} Comando único y salir")
+        print(f"{Fore.GREEN}4.{Style.RESET_ALL} Salir")
         print(f"{Fore.CYAN}{'='*60}{Style.RESET_ALL}")
         
         try:
@@ -225,15 +224,13 @@ def main():
             if opcion == '1':
                 demo_comandos_linux(session)
             elif opcion == '2':
-                demo_comandos_windows(session)
-            elif opcion == '3':
                 comando_personalizado(session)
-            elif opcion == '4':
+            elif opcion == '3':
                 comando = input(f"{Fore.YELLOW}Ingresa el comando: {Style.RESET_ALL}").strip()
                 if comando:
                     exploit_rce(session, comando)
                 break
-            elif opcion == '5':
+            elif opcion == '4':
                 print(f"\n{Fore.YELLOW}¡Hasta luego!{Style.RESET_ALL}")
                 break
             else:
