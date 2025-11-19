@@ -1,4 +1,5 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, jsonify, session
+from werkzeug.security import check_password_hash, generate_password_hash
 import sqlite3
 import subprocess
 import os
@@ -123,11 +124,21 @@ def login():
         
         conn = sqlite3.connect('banco.db')
         cursor = conn.cursor()
-        cursor.execute('SELECT * FROM cuentas WHERE usuario = ? AND password = ?', (usuario, password))
+        cursor.execute('SELECT * FROM cuentas WHERE usuario = ?', (usuario,))
         cuenta = cursor.fetchone()
         conn.close()
         
-        if cuenta:
+        if cuenta and cuenta[6]:  # cuenta[6] es el campo password
+            # Verificar password hasheado
+            if check_password_hash(cuenta[6], password):
+                session['usuario_id'] = cuenta[0]
+                session['usuario_nombre'] = cuenta[1]
+                session['logueado'] = True
+                return redirect(url_for('dashboard'))
+            else:
+                flash('Credenciales incorrectas')
+        elif cuenta and not cuenta[6]:
+            # Login directo para cuentas sin password (compatibilidad con cuentas antiguas)
             session['usuario_id'] = cuenta[0]
             session['usuario_nombre'] = cuenta[1]
             session['logueado'] = True
@@ -576,33 +587,59 @@ def oauth_callback():
         'timestamp': time.time()
     }
     
-    # Buscar o crear cuenta bancaria vinculada
+    # ⚠️ VULNERABILIDAD CSRF: Vincular cuenta OAuth con sesión activa
+    # Si el usuario ya tiene sesión activa, vincular SU cuenta con este OAuth
+    # Esto permite el ataque CSRF: atacante genera código, víctima lo usa = cuenta vinculada
     conn = sqlite3.connect('banco.db')
     cursor = conn.cursor()
     
     oauth_username = f"oauth_{user_info['user_id']}"
-    cursor.execute('SELECT * FROM cuentas WHERE usuario = ?', (oauth_username,))
-    cuenta = cursor.fetchone()
     
-    if not cuenta:
-        # Crear nueva cuenta
-        numero_cuenta = f"9999-{secrets.token_hex(4).upper()}"
+    # PRIMERO: Verificar si el usuario ya está logueado en el banco
+    if session.get('logueado') and session.get('usuario_id'):
+        # ⚠️ CSRF VULNERABILITY: Usuario con sesión activa ejecuta callback OAuth
+        # En un sistema seguro, deberíamos validar el state aquí
+        # Vincular la cuenta existente con este OAuth
+        existing_user_id = session.get('usuario_id')
+        
+        # Actualizar la cuenta existente para vincularla con OAuth
         cursor.execute('''
-            INSERT INTO cuentas (nombre, numero_cuenta, saldo, tipo_cuenta, usuario, password)
-            VALUES (?, ?, ?, ?, ?, ?)
-        ''', (
-            user_info['name'],
-            numero_cuenta,
-            10000.00,
-            'Cuenta OAuth Google',
-            oauth_username,
-            secrets.token_urlsafe(16)
-        ))
+            UPDATE cuentas 
+            SET usuario = ?, tipo_cuenta = ? 
+            WHERE id = ?
+        ''', (oauth_username, 'Cuenta OAuth Google', existing_user_id))
         conn.commit()
+        
+        # Obtener la cuenta actualizada
+        cursor.execute('SELECT * FROM cuentas WHERE id = ?', (existing_user_id,))
+        cuenta = cursor.fetchone()
+        conn.close()
+        
+        flash(f'¡Cuenta vinculada exitosamente con Google ({user_info["email"]})!', 'success')
+    else:
+        # Usuario NO tiene sesión activa: buscar o crear cuenta OAuth
         cursor.execute('SELECT * FROM cuentas WHERE usuario = ?', (oauth_username,))
         cuenta = cursor.fetchone()
-    
-    conn.close()
+        
+        if not cuenta:
+            # Crear nueva cuenta OAuth
+            numero_cuenta = f"9999-{secrets.token_hex(4).upper()}"
+            cursor.execute('''
+                INSERT INTO cuentas (nombre, numero_cuenta, saldo, tipo_cuenta, usuario, password)
+                VALUES (?, ?, ?, ?, ?, ?)
+            ''', (
+                user_info['name'],
+                numero_cuenta,
+                10000.00,
+                'Cuenta OAuth Google',
+                oauth_username,
+                secrets.token_urlsafe(16)
+            ))
+            conn.commit()
+            cursor.execute('SELECT * FROM cuentas WHERE usuario = ?', (oauth_username,))
+            cuenta = cursor.fetchone()
+        
+        conn.close()
     
     # Iniciar sesión
     session['usuario_id'] = cuenta[0]
