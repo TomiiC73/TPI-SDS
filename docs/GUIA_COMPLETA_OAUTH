@@ -1,0 +1,365 @@
+# 🔐 Guía Completa de Testing - Vulnerabilidades OAuth2
+
+## 📋 Índice
+1. [Preparación del Entorno](#preparación)
+2. [Vulnerabilidad 1: CSRF en OAuth](#vulnerabilidad-1)
+3. [Vulnerabilidad 2: Client Secret Expuesto](#vulnerabilidad-2)
+4. [Vulnerabilidad 3: Reutilización de Códigos](#vulnerabilidad-3)
+5. [Resumen de Hallazgos](#resumen)
+
+---
+
+## 🛠️ Preparación del Entorno {#preparación}
+
+### Requisitos
+- ✅ Docker ejecutándose
+- ✅ Aplicación corriendo en `http://127.0.0.1:5000`
+- ✅ Dos navegadores/ventanas:
+  - **Navegador 1:** Normal (para el atacante)
+  - **Navegador 2:** Modo Incógnito (para la víctima)
+
+### Verificar que el servidor está corriendo
+
+```bash
+# En tu terminal
+docker ps
+
+# Deberías ver el contenedor del banco corriendo
+# Si no está corriendo:
+docker-compose up -d
+```
+
+Visita: http://127.0.0.1:5000 - Deberías ver la página principal del banco
+
+---
+
+## 🎯 Vulnerabilidad 1: CSRF en OAuth (State no validado) {#vulnerabilidad-1}
+
+### ¿Qué es?
+El parámetro `state` en OAuth2 previene ataques CSRF. Si no se valida correctamente, un atacante puede:
+1. Iniciar un flujo OAuth con **su** cuenta Google
+2. Capturar la URL de autorización
+3. Enviársela a la víctima
+4. Cuando la víctima autoriza, **su cuenta bancaria** se vincula a la **cuenta Google del atacante**
+
+### 📍 **PASO A PASO - Explotación Manual**
+
+#### **FASE 1: Atacante prepara el ataque**
+
+1. **Abre el navegador NORMAL** (será el atacante)
+
+2. **Ve a:** http://127.0.0.1:5000/oauth/init
+
+3. **Obtendrás algo como:**
+```json
+{
+  "authorization_url": "http://127.0.0.1:5000/oauth/google/authorize?client_id=banco-app-123456&redirect_uri=http://127.0.0.1:5000/oauth/callback&response_type=code&state=ABC123XYZ&scope=email+profile",
+  "state": "ABC123XYZ"
+}
+```
+
+4. **Copia el `authorization_url`** completo
+
+5. **Pégalo en la barra de direcciones** del mismo navegador
+
+6. **Login con la cuenta del ATACANTE:**
+   - Email: `hacker@google.com`
+   - Password: `hacker123`
+   - Presiona "Iniciar Sesión"
+
+7. **IMPORTANTE:** Verás la pantalla de "Autorización". 
+   **NO presiones "Permitir" todavía**
+
+8. **Copia la URL COMPLETA** de esta pantalla de autorización. Será algo como:
+```
+http://127.0.0.1:5000/oauth/google/authorize?client_id=banco-app-123456&redirect_uri=http://127.0.0.1:5000/oauth/callback&state=ABC123XYZ&scope=email+profile&response_type=code
+```
+
+#### **FASE 2: Víctima completa el ataque sin saberlo**
+
+9. **Abre un navegador en MODO INCÓGNITO** (será la víctima)
+
+10. **Pega la URL** que copiaste del atacante en el paso 8
+
+11. **Login con la cuenta de la VÍCTIMA:**
+    - Email: `usuario@google.com`
+    - Password: `google123`
+    - Presiona "Iniciar Sesión"
+
+12. **Presiona "Permitir"** en la pantalla de autorización
+
+#### **RESULTADO DEL ATAQUE:**
+
+✅ La cuenta bancaria de `usuario@google.com` (víctima) quedará vinculada a la sesión OAuth que inició `hacker@google.com` (atacante)
+
+✅ El atacante puede ahora acceder a la cuenta bancaria de la víctima
+
+### 🔍 **¿Por qué funciona?**
+
+El código NO valida que el `state` pertenezca a la misma sesión/navegador que lo generó:
+
+```python
+# ❌ CÓDIGO VULNERABLE (app_banco.py línea ~450)
+# NO HAY VALIDACIÓN DEL STATE
+
+# ✅ CÓDIGO SEGURO (debería tener):
+if state not in oauth_states:
+    return "Invalid state", 400
+    
+state_data = oauth_states[state]
+if state_data['session_id'] != session.get('_id'):
+    return "State belongs to different session - CSRF DETECTED", 400
+```
+
+### 📸 **Evidencia para tu informe:**
+
+**Captura 1:** URL con el `state` generado por el atacante
+**Captura 2:** Pantalla de login como víctima
+**Captura 3:** Dashboard del banco mostrando cuenta vinculada
+
+---
+
+## 🔑 Vulnerabilidad 2: Client Secret Expuesto {#vulnerabilidad-2}
+
+### ¿Qué es?
+El `CLIENT_SECRET` es una credencial confidencial que NUNCA debe exponerse públicamente. Con él, un atacante puede:
+- Obtener tokens de acceso directamente
+- Saltarse todo el flujo OAuth
+- Suplantar la identidad de la aplicación
+
+### 📍 **PASO A PASO - Explotación**
+
+#### **FASE 1: Obtener el Client Secret**
+
+1. **Abre tu navegador**
+
+2. **Ve a:** http://127.0.0.1:5000/oauth/info
+
+3. **Verás una página con las credenciales:**
+```
+CLIENT_ID: banco-app-123456
+CLIENT_SECRET: SECRET_SUPER_SECRETO_EXPUESTO_123
+JWT_SECRET: jwt_secret_debil
+```
+
+4. **Copia el `CLIENT_SECRET`**
+
+#### **FASE 2: Usar el Secret para obtener tokens**
+
+5. **Primero necesitas obtener un código de autorización:**
+   - Ve a: http://127.0.0.1:5000/oauth/init
+   - Copia el `authorization_url`
+   - Completa el flujo OAuth normal (login + autorizar)
+   - En la URL del callback, copia el `code`:
+   ```
+   http://127.0.0.1:5000/oauth/callback?code=CODIGO_AQUI&state=...
+   ```
+
+6. **Ahora usa curl para obtener el token directamente:**
+
+```bash
+curl -X POST http://127.0.0.1:5000/oauth/google/token \
+  -H "Content-Type: application/json" \
+  -d '{
+    "code": "TU_CODIGO_AQUI",
+    "client_id": "banco-app-123456",
+    "client_secret": "SECRET_SUPER_SECRETO_EXPUESTO_123"
+  }'
+```
+
+7. **Recibirás un token válido:**
+```json
+{
+  "access_token": "eyJ0eXAiOiJKV1QiLCJhbGc...",
+  "token_type": "Bearer",
+  "expires_in": 86400,
+  "user_info": { ... }
+}
+```
+
+### 🔍 **¿Por qué funciona?**
+
+El `CLIENT_SECRET` está:
+1. ❌ Hardcodeado en el código fuente (línea 18)
+2. ❌ Expuesto en una página web pública `/oauth/info`
+3. ❌ NO está en variables de entorno
+
+```python
+# ❌ CÓDIGO VULNERABLE
+GOOGLE_CLIENT_SECRET = "SECRET_SUPER_SECRETO_EXPUESTO_123"
+
+# ✅ CÓDIGO SEGURO (debería ser):
+import os
+GOOGLE_CLIENT_SECRET = os.environ.get('OAUTH_CLIENT_SECRET')
+```
+
+### 📸 **Evidencia para tu informe:**
+
+**Captura 1:** Página `/oauth/info` mostrando credenciales
+**Captura 2:** Terminal con curl obteniendo token
+**Captura 3:** Respuesta JSON con el access_token
+
+---
+
+## 🔄 Vulnerabilidad 3: Reutilización de Códigos OAuth {#vulnerabilidad-3}
+
+### ¿Qué es?
+Los códigos de autorización OAuth deberían usarse **UNA SOLA VEZ** y luego invalidarse. Si no se invalidan, un atacante que intercepte un código puede usarlo múltiples veces.
+
+### 📍 **PASO A PASO - Explotación**
+
+#### **FASE 1: Obtener un código válido**
+
+1. **Completa un flujo OAuth normal:**
+   - Ve a: http://127.0.0.1:5000/oauth/init
+   - Copia el `authorization_url`
+   - Login con: `test@google.com` / `test123`
+   - Autoriza la aplicación
+
+2. **En la URL del callback, verás algo como:**
+```
+http://127.0.0.1:5000/oauth/callback?code=Np8jYGHpDqk&state=XYZ
+```
+
+3. **Copia el `code`** (ej: `Np8jYGHpDqk`)
+
+4. **La primera vez funciona:** serás redirigido al dashboard
+
+#### **FASE 2: Reutilizar el mismo código**
+
+5. **Cierra la sesión** (o usa modo incógnito)
+
+6. **Construye la URL del callback manualmente:**
+```
+http://127.0.0.1:5000/oauth/callback?code=Np8jYGHpDqk&state=cualquier_valor
+```
+
+7. **Pégala en el navegador y presiona Enter**
+
+8. **RESULTADO:** El código funciona DE NUEVO ❌
+
+### 🔍 **¿Por qué funciona?**
+
+El código NO elimina ni invalida los códigos después de usarlos:
+
+```python
+# ❌ CÓDIGO VULNERABLE (línea ~555)
+# NO se elimina el código después de usarlo
+auth_data = authorization_codes[code]
+# ... usa el código ...
+# DEBERÍA HACER: del authorization_codes[code]
+
+# Tampoco valida si ya fue usado:
+# if auth_data.get('used_count', 0) > 0:
+#     return "Code already used", 400
+```
+
+### 📸 **Evidencia para tu informe:**
+
+**Captura 1:** Primera vez usando el código (exitoso)
+**Captura 2:** Segunda vez usando el MISMO código (también exitoso) ❌
+**Captura 3:** Dashboard mostrando acceso con código reutilizado
+
+---
+
+## 📊 Resumen de Hallazgos {#resumen}
+
+| # | Vulnerabilidad | Severidad | CVSS | Impacto |
+|---|---------------|-----------|------|---------|
+| 1 | CSRF en OAuth (State no validado) | 🔴 Crítica | 9.1 | Secuestro de cuenta, acceso no autorizado |
+| 2 | Client Secret Expuesto | 🔴 Crítica | 9.8 | Bypass OAuth completo, suplantación de identidad |
+| 3 | Reutilización de Códigos OAuth | 🟠 Alta | 7.5 | Replay attacks, acceso múltiple no autorizado |
+
+### 🛡️ Mitigaciones Recomendadas
+
+#### **Para Vulnerabilidad 1:**
+```python
+# Validar state en el callback
+if state not in oauth_states:
+    abort(403, "Invalid state - CSRF detected")
+    
+state_data = oauth_states[state]
+if state_data['session_id'] != session.get('_id'):
+    abort(403, "State from different session")
+    
+if time.time() - state_data['timestamp'] > 300:
+    abort(403, "State expired")
+    
+oauth_states[state]['used'] = True
+```
+
+#### **Para Vulnerabilidad 2:**
+```python
+# Usar variables de entorno
+import os
+CLIENT_SECRET = os.environ.get('OAUTH_CLIENT_SECRET')
+
+# NUNCA exponer en:
+# - Código fuente
+# - Páginas web públicas
+# - JavaScript del frontend
+# - Logs o errores
+```
+
+#### **Para Vulnerabilidad 3:**
+```python
+# Invalidar código después del primer uso
+if code in authorization_codes:
+    auth_data = authorization_codes[code]
+    
+    # Verificar si ya fue usado
+    if auth_data.get('used_count', 0) > 0:
+        abort(400, "Authorization code already used")
+    
+    # Marcar como usado
+    auth_data['used_count'] += 1
+    
+    # Mejor: eliminarlo completamente
+    del authorization_codes[code]
+```
+
+---
+
+## 🎯 Checklist de Testing
+
+Antes de presentar tu trabajo, verifica:
+
+- [ ] Has probado la Vulnerabilidad 1 con dos navegadores
+- [ ] Capturaste evidencia de cada paso
+- [ ] Probaste la Vulnerabilidad 2 accediendo a `/oauth/info`
+- [ ] Usaste curl o Postman para demostrar Vulnerabilidad 2
+- [ ] Probaste reutilizar un código OAuth en Vulnerabilidad 3
+- [ ] Documentaste cada hallazgo con capturas
+- [ ] Explicaste el impacto de cada vulnerabilidad
+- [ ] Propusiste mitigaciones para cada una
+
+---
+
+## 🚀 Scripts Automatizados
+
+Para facilitar el testing, usa:
+
+```bash
+# Instalar dependencias
+pip install requests colorama
+
+# Ejecutar script de testing
+python test_oauth_vulnerabilities.py
+```
+
+El script te guiará paso a paso por cada vulnerabilidad.
+
+---
+
+## 📚 Referencias
+
+- [OAuth 2.0 RFC 6749](https://tools.ietf.org/html/rfc6749)
+- [OAuth 2.0 Threat Model (RFC 6819)](https://tools.ietf.org/html/rfc6819)
+- [OWASP OAuth 2.0 Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/OAuth2_Cheat_Sheet.html)
+
+---
+
+**¿Dudas?** Revisa el código en `app_banco.py` líneas:
+- Vulnerabilidad 1: Líneas 380-420, 540-560
+- Vulnerabilidad 2: Líneas 18-20, 350-360
+- Vulnerabilidad 3: Líneas 540-580

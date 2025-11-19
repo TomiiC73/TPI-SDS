@@ -1,0 +1,227 @@
+# ===============================================
+# Python
+# ===============================================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+pip-log.txt
+pip-delete-this-directory.txt
+
+# ===============================================
+# Virtual Environments
+# ===============================================
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+.venv/
+
+# ===============================================
+# IDEs y Editores
+# ===============================================
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+*.sublime-project
+*.sublime-workspace
+.project
+.pydevproject
+.settings/
+
+# ===============================================
+# Environment Variables (CRÍTICO)
+# ===============================================
+.env
+.env.local
+.env.*.local
+*.env
+!.env.example
+
+# ===============================================
+# Database
+# ===============================================
+*.db
+*.sqlite
+*.sqlite3
+*.db-journal
+backup_banco_*.db
+
+# ===============================================
+# Logs
+# ===============================================
+*.log
+logs/
+*.log.*
+log/
+
+# ===============================================
+# Docker
+# ===============================================
+docker-compose.override.yml
+.dockerignore
+
+# ===============================================
+# Testing
+# ===============================================
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.nox/
+coverage.xml
+*.cover
+.hypothesis/
+.pytest_cache/
+nosetests.xml
+
+# ===============================================
+# Jupyter Notebooks
+# ===============================================
+.ipynb_checkpoints
+*.ipynb
+
+# ===============================================
+# OS específicos
+# ===============================================
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+*.lnk
+
+# Linux
+*~
+.directory
+.Trash-*
+
+# ===============================================
+# Temporales
+# ===============================================
+*.tmp
+*.temp
+*.bak
+*.swp
+*.swo
+*.orig
+*.rej
+*~
+\#*\#
+.\#*
+
+# ===============================================
+# Secrets y Keys (CRÍTICO)
+# ===============================================
+*.pem
+*.key
+*.crt
+*.cer
+*.p12
+*.pfx
+secrets/
+.secrets/
+credentials.json
+token.json
+
+# ===============================================
+# Build artifacts
+# ===============================================
+*.pyc
+*.pyo
+*.pyd
+.Python
+__pycache__/
+instance/
+.webassets-cache
+
+# ===============================================
+# Flask específico
+# ===============================================
+instance/
+.webassets-cache
+.flask_session/
+
+# ===============================================
+# Node (si usas frontend)
+# ===============================================
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+yarn.lock
+
+# ===============================================
+# Documentos grandes (PDFs de propuesta)
+# ===============================================
+# Descomentar si no quieres trackear PDFs
+# *.pdf
+
+# ===============================================
+# Backups
+# ===============================================
+*.backup
+*.old
+backup/
+backups/
+
+# ===============================================
+# Monitoring y Analytics
+# ===============================================
+.monitor/
+analytics/
+metrics/
+
+# ===============================================
+# CI/CD
+# ===============================================
+.github/workflows/*.secret.yml
+.gitlab-ci.local.yml
+
+# ===============================================
+# Security Scans
+# ===============================================
+.snyk
+.trivy/
+.bandit
+security-report.json
+
+# ===============================================
+# Custom (proyecto específico)
+# ===============================================
+# Agregar aquí archivos específicos del proyecto
+test_*.py
+*_test.py
+scratch/
+playground/

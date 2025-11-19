@@ -1,0 +1,81 @@
+version: '3.8'
+
+services:
+  # Servicio principal de la aplicación bancaria
+  banco-app:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    container_name: banco-nacional
+    image: banco-nacional:latest
+    ports:
+      - "5000:5000"
+    environment:
+      - FLASK_APP=app_banco.py
+      - FLASK_ENV=development
+      - PYTHONUNBUFFERED=1
+    volumes:
+      # Montar la base de datos para persistencia
+      - ../banco.db:/app/banco.db
+      # Montar templates para hot-reload en desarrollo
+      - ../templates:/app/templates:ro
+    restart: unless-stopped
+    networks:
+      - banco-network
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:5000/')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 5s
+    labels:
+      - "com.banco.description=Sistema bancario vulnerable para práctica educativa"
+      - "com.banco.version=1.0"
+
+  # Servicio de enunciados (opcional)
+  enunciados-app:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.enunciados
+    container_name: banco-enunciados
+    image: banco-enunciados:latest
+    ports:
+      - "5001:5001"
+    environment:
+      - FLASK_APP=app_enunciados.py
+      - FLASK_ENV=development
+      - PYTHONUNBUFFERED=1
+    volumes:
+      - ../templates:/app/templates:ro
+    restart: unless-stopped
+    networks:
+      - banco-network
+    depends_on:
+      - banco-app
+    labels:
+      - "com.banco.description=Sistema de enunciados y desafíos"
+
+  # Base de datos SQLite Admin (opcional - para visualizar la DB)
+  db-admin:
+    image: coleifer/sqlite-web:latest
+    container_name: banco-db-admin
+    ports:
+      - "8080:8080"
+    volumes:
+      - ../banco.db:/data/banco.db
+    environment:
+      - SQLITE_DATABASE=/data/banco.db
+    restart: unless-stopped
+    networks:
+      - banco-network
+    labels:
+      - "com.banco.description=Interface web para administrar SQLite"
+
+networks:
+  banco-network:
+    driver: bridge
+    name: banco-network
+
+volumes:
+  banco-data:
+    driver: local
