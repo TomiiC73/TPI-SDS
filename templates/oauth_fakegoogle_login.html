@@ -267,14 +267,20 @@
         {% endwith %}
         
         <form method="POST" action="{{ url_for('oauth_google_login', redirect_uri=redirect_uri, state=state, client_id=client_id) }}">
+
+            <input type="hidden" name="client_id" value="{{ client_id }}">
+            <input type="hidden" name="redirect_uri" value="{{ redirect_uri }}">
+            <input type="hidden" name="state" value="{{ state }}">
+            <input type="hidden" name="scope" value="{{ scope }}">
+
             <div class="form-group">
                 <input type="email" id="email" name="email" required 
-                       placeholder="Correo electrónico o teléfono" autocomplete="email">
+                    placeholder="Correo electrónico o teléfono" autocomplete="email">
             </div>
             
             <div class="form-group">
                 <input type="password" id="password" name="password" required 
-                       placeholder="Introduce tu contraseña" autocomplete="current-password">
+                    placeholder="Introduce tu contraseña" autocomplete="current-password">
             </div>
             
             <div class="btn-container">
@@ -282,6 +288,7 @@
                 <button type="submit" class="btn-primary">Siguiente</button>
             </div>
         </form>
+
         
         <div class="info-box">
             <h3>Cuentas de prueba</h3>

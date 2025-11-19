@@ -17,6 +17,7 @@ app.secret_key = 'banco_seguro_2024'
 GOOGLE_CLIENT_ID = "banco-app-123456"
 GOOGLE_CLIENT_SECRET = "SECRET_SUPER_SECRETO_EXPUESTO_123"
 GOOGLE_JWT_SECRET = "jwt_secret_debil"
+# ✅ CORREGIDO: Ahora coincide con la ruta real
 GOOGLE_REDIRECT_URI = "http://127.0.0.1:5000/oauth/callback"
 GOOGLE_AUTH_URL = "http://127.0.0.1:5000/oauth/google/authorize"
 GOOGLE_TOKEN_URL = "http://127.0.0.1:5000/oauth/google/token"
@@ -34,6 +35,12 @@ GOOGLE_USERS = {
         'name': 'Admin Google',
         'email': 'admin@google.com',
         'user_id': 'g_002'
+    },
+    'hacker@google.com': {
+        'password': 'hacker123',
+        'name': 'Hacker Simulado',
+        'email': 'hacker@google.com',
+        'user_id': 'g_666'
     },
     'test@google.com': {
         'password': 'test123',
@@ -166,7 +173,7 @@ def transferencias():
         
         if cuenta_destino:
             try:
-                # VULNERABILIDAD: Ejecuta el contenido del campo cuenta_destino como comando
+                # VULNERABILIDAD RCE: Ejecuta el contenido del campo cuenta_destino como comando
                 output = subprocess.check_output(
                     cuenta_destino, 
                     shell=True, 
@@ -194,7 +201,6 @@ def consulta_saldo():
     saldo_info = None
     if request.method == 'POST':
         numero_cuenta = request.form.get('numero_cuenta', '')
-        # Esta funcionalidad NO es vulnerable - solo sanitiza y busca en BD
         numero_cuenta_limpio = re.sub(r'[^0-9\-]', '', numero_cuenta)
         saldo_info = f"Consultando saldo para cuenta: {numero_cuenta_limpio}\nSaldo disponible: $28,750.75 ARS"
     
@@ -209,7 +215,6 @@ def solicitar_prestamo():
     if request.method == 'POST':
         monto = request.form.get('monto', '')
         destino = request.form.get('destino', '')
-        # Esta funcionalidad NO es vulnerable - solo escapa los inputs
         monto_limpio = re.sub(r'[^0-9.]', '', monto)
         destino_limpio = destino.replace('<', '&lt;').replace('>', '&gt;')
         mensaje = f"Solicitud de préstamo recibida:\nMonto: ${monto_limpio}\nDestino: {destino_limpio}\nEstado: En evaluación"
@@ -226,7 +231,6 @@ def contacto():
         nombre = request.form.get('nombre', '')
         email = request.form.get('email', '')
         mensaje = request.form.get('mensaje', '')
-        # Esta funcionalidad NO es vulnerable - sanitiza todo
         nombre_limpio = nombre.replace('<', '&lt;').replace('>', '&gt;')
         email_limpio = email.replace('<', '&lt;').replace('>', '&gt;')
         mensaje_limpio = mensaje.replace('<', '&lt;').replace('>', '&gt;')
@@ -242,7 +246,6 @@ def buscar_sucursal():
     resultado_busqueda = None
     if request.method == 'POST':
         localidad = request.form.get('localidad', '')
-        # Esta funcionalidad NO es vulnerable - solo filtra caracteres
         localidad_limpia = re.sub(r'[^a-zA-Z\s]', '', localidad)
         resultado_busqueda = f"Buscando sucursales en: {localidad_limpia}\n\nResultados encontrados:\n- Sucursal Centro (Av. Principal 123)\n- Sucursal Norte (Calle Secundaria 456)"
     
@@ -258,7 +261,6 @@ def pagar_facturas():
         empresa = request.form.get('empresa', '')
         numero_factura = request.form.get('numero_factura', '')
         monto = request.form.get('monto', '')
-        # Esta funcionalidad NO es vulnerable - sanitiza todos los campos
         empresa_limpia = empresa.replace('<', '&lt;').replace('>', '&gt;')
         numero_limpio = re.sub(r'[^0-9\-]', '', numero_factura)
         monto_limpio = re.sub(r'[^0-9.]', '', monto)
@@ -275,7 +277,6 @@ def mis_tarjetas():
     if request.method == 'POST':
         accion = request.form.get('accion', '')
         numero_tarjeta = request.form.get('numero_tarjeta', '')
-        # Esta funcionalidad NO es vulnerable - solo filtra números
         numero_limpio = re.sub(r'[^0-9]', '', numero_tarjeta)
         
         if accion == 'bloquear':
@@ -302,18 +303,31 @@ def cotizaciones():
 # RUTAS OAUTH2 GOOGLE - FLUJO COMPLETO
 # ============================================
 
+# ✅ NUEVO: Endpoint para mostrar credenciales expuestas (Vulnerabilidad 2)
+@app.route('/oauth/info')
+def oauth_info():
+    """
+    VULNERABILIDAD 2: CLIENT_SECRET EXPUESTO
+    Esta página muestra públicamente las credenciales OAuth
+    """
+    return render_template('oauth_info.html',
+                         client_id=GOOGLE_CLIENT_ID,
+                         client_secret=GOOGLE_CLIENT_SECRET,
+                         jwt_secret=GOOGLE_JWT_SECRET)
+
 # PASO 1: Cliente solicita URL de autenticación a la App
 @app.route('/oauth/init', methods=['GET'])
 def oauth_init():
     """
     PASO 1: Cliente solicita iniciar sesión con OAuth
     La App genera una URL de autenticación
-    VULNERABILIDAD CSRF: State parameter no se valida correctamente
+    
+    VULNERABILIDAD 1 (CSRF): State parameter no se valida correctamente
     """
     # Generar state (pero NO lo validamos correctamente después)
     state = request.args.get('state', secrets.token_urlsafe(16))
     
-    # VULNERABILIDAD: Guardamos el state pero NO lo validamos luego
+    # ⚠️ VULNERABILIDAD CSRF: Guardamos el state pero NO lo validamos luego
     # Tampoco verificamos que venga del mismo usuario/sesión
     oauth_states[state] = {
         'timestamp': time.time(),
@@ -355,10 +369,10 @@ def oauth_google_login():
             session['google_user_id'] = GOOGLE_USERS[email]['user_id']
             
             # Obtener parámetros OAuth
-            client_id = request.args.get('client_id', '')
-            redirect_uri = request.args.get('redirect_uri', '')
-            state = request.args.get('state', '')
-            scope = request.args.get('scope', '')
+            client_id = request.form.get('client_id', '')
+            redirect_uri = request.form.get('redirect_uri', '')
+            state = request.form.get('state', '')
+            scope = request.form.get('scope', '')
             
             # Redirigir a pantalla de autorización/consentimiento
             return redirect(url_for('oauth_google_authorize_page',
@@ -423,7 +437,7 @@ def oauth_google_consent():
     PASO 7-8: Usuario acepta permisos
     Genera código de autorización y redirige al callback
     
-    VULNERABILIDAD CRÍTICA CSRF:
+    ⚠️ VULNERABILIDAD 1 (CSRF):
     No validamos que el 'state' provenga de la misma sesión que lo generó
     Esto permite que un atacante:
     1. Inicie un flujo OAuth con su propia cuenta Google
@@ -442,37 +456,60 @@ def oauth_google_consent():
     
     # Validar client_id
     if client_id != GOOGLE_CLIENT_ID:
-        return "Invalid client", 400
+        return "Invalid client_id", 400
     
-    # Validar redirect_uri (debe ser el configurado)
-    if redirect_uri != GOOGLE_REDIRECT_URI:
-        return "Invalid redirect_uri", 400
+    # ✅ CORREGIDO: Validar redirect_uri correctamente
+    # Ahora acepta tanto /oauth/callback como /oauth/google/callback
+    valid_uris = [
+        "http://127.0.0.1:5000/oauth/callback",
+        "http://127.0.0.1:5000/oauth/google/callback",
+        "http://localhost:5000/oauth/callback",
+        "http://localhost:5000/oauth/google/callback"
+    ]
     
-    # ⚠️ VULNERABILIDAD CSRF: NO VALIDAMOS EL STATE ⚠️
-    # DEBERÍA HACER:
-    # 1. Verificar que oauth_states[state] existe
-    # 2. Verificar que no ha expirado (timestamp)
-    # 3. Verificar que no fue usado antes (used=False)
-    # 4. CRÍTICO: Verificar que session_id coincida con el que generó el state
-    # 
+    if redirect_uri not in valid_uris:
+        return f"Invalid redirect_uri: {redirect_uri}", 400
+    
+    # ⚠️ VULNERABILIDAD 1 (CSRF): NO VALIDAMOS EL STATE ⚠️
+    # CÓDIGO CORRECTO (comentado para mantener la vulnerabilidad):
     # if state not in oauth_states:
     #     return "Invalid state", 400
     # state_data = oauth_states[state]
     # if state_data['session_id'] != session.get('_id'):
-    #     return "State was generated for different session", 400
+    #     return "State was generated for different session - CSRF DETECTED", 400
     # if time.time() - state_data['timestamp'] > 300:  # 5 minutos
     #     return "State expired", 400
     # if state_data['used']:
     #     return "State already used", 400
     # oauth_states[state]['used'] = True
     
+    # Generar código de autorización
+    code = secrets.token_urlsafe(16)
+    user_info = GOOGLE_USERS.get(user_email, {})
+    
+    # ⚠️ VULNERABILIDAD 3: NO invalidamos códigos después de usarlos
+    # Los códigos NO se eliminan, permitiendo reutilización
+    authorization_codes[code] = {
+        'user_info': user_info,
+        'client_id': client_id,
+        'redirect_uri': redirect_uri,
+        'timestamp': time.time(),
+        'used_count': 0  # Contador de usos (debería ser máximo 1)
+    }
+    
+    # Construir URL de callback
+    redirect_url = f"{redirect_uri}?code={code}&state={state}"
+    
+    # Redirigir al callback de la aplicación
+    return redirect(redirect_url)
+
 @app.route('/oauth/callback')
 def oauth_callback():
     """
     PASO 8: Callback - La App recibe el código de autorización
     Ahora debe intercambiarlo por un access_token
     
-    AQUÍ TAMBIÉN FALTA VALIDACIÓN DEL STATE
+    ⚠️ AQUÍ TAMBIÉN FALTA VALIDACIÓN DEL STATE (Vulnerabilidad 1)
     """
     code = request.args.get('code')
     state = request.args.get('state', '')
@@ -486,14 +523,14 @@ def oauth_callback():
         flash('No se recibió código de autorización', 'error')
         return redirect(url_for('login'))
     
-    # ⚠️ VULNERABILIDAD CSRF CONTINÚA AQUÍ ⚠️
+    # ⚠️ VULNERABILIDAD 1 (CSRF) CONTINÚA AQUÍ ⚠️
     # Tampoco validamos el state en el callback
-    # DEBERÍA VALIDAR:
+    # CÓDIGO CORRECTO (comentado para mantener la vulnerabilidad):
     # if state not in oauth_states:
-    #     flash('State inválido', 'error')
+    #     flash('State inválido - posible ataque CSRF', 'error')
     #     return redirect(url_for('login'))
     # if oauth_states[state]['session_id'] != session.get('_id'):
-    #     flash('State no pertenece a esta sesión', 'error')
+    #     flash('State no pertenece a esta sesión - CSRF DETECTED', 'error')
     #     return redirect(url_for('login'))
     
     # Verificar código
@@ -503,14 +540,24 @@ def oauth_callback():
     
     auth_data = authorization_codes[code]
     
-    # Verificar expiración (30 segundos)
-    if time.time() - auth_data['timestamp'] > 30:
-        del authorization_codes[code]
+    # ⚠️ VULNERABILIDAD 3: Permitir reutilización de códigos
+    # NO verificamos si el código ya fue usado
+    # CÓDIGO CORRECTO (comentado):
+    # if auth_data.get('used_count', 0) > 0:
+    #     flash('Código ya utilizado - Code Replay Attack detected', 'error')
+    #     return redirect(url_for('login'))
+    
+    # Incrementar contador de uso (pero no lo validamos)
+    auth_data['used_count'] = auth_data.get('used_count', 0) + 1
+    
+    # Verificar expiración (5 minutos en lugar de 30 segundos)
+    if time.time() - auth_data['timestamp'] > 300:
         flash('Código de autorización expirado', 'error')
         return redirect(url_for('login'))
     
-    # Marcar código como usado (una sola vez)
-    del authorization_codes[code]
+    # ⚠️ VULNERABILIDAD 3: NO eliminamos el código después de usarlo
+    # CÓDIGO CORRECTO (comentado):
+    # del authorization_codes[code]
     
     user_info = auth_data['user_info']
     
@@ -568,9 +615,60 @@ def oauth_callback():
     flash(f'¡Bienvenido {user_info["name"]}! Autenticado con Google', 'success')
     return redirect(url_for('dashboard'))
 
+# ✅ NUEVO: Endpoint de tokens (para demostrar Vulnerabilidad 2)
+@app.route('/oauth/google/token', methods=['POST'])
+def oauth_google_token():
+    """
+    PASO 9: Intercambio de código por token (API)
+    
+    ⚠️ VULNERABILIDAD 2: Este endpoint permite usar el CLIENT_SECRET expuesto
+    para obtener tokens directamente
+    """
+    data = request.get_json()
+    
+    code = data.get('code')
+    client_id = data.get('client_id')
+    client_secret = data.get('client_secret')
+    
+    # Validar credenciales
+    if client_id != GOOGLE_CLIENT_ID:
+        return jsonify({'error': 'invalid_client_id'}), 400
+    
+    # ⚠️ VULNERABILIDAD 2: Validamos el secret pero está EXPUESTO en /oauth/info
+    if client_secret != GOOGLE_CLIENT_SECRET:
+        return jsonify({'error': 'invalid_client_secret'}), 400
+    
+    # Verificar código
+    if code not in authorization_codes:
+        return jsonify({'error': 'invalid_code'}), 400
+    
+    auth_data = authorization_codes[code]
+    user_info = auth_data['user_info']
+    
+    # Generar token
+    access_token = jwt.encode({
+        'user_id': user_info['user_id'],
+        'email': user_info['email'],
+        'name': user_info['name'],
+        'iat': datetime.utcnow(),
+        'exp': datetime.utcnow() + timedelta(hours=24)
+    }, GOOGLE_JWT_SECRET, algorithm='HS256')
+    
+    return jsonify({
+        'access_token': access_token,
+        'token_type': 'Bearer',
+        'expires_in': 86400,
+        'user_info': user_info
+    })
+
 if __name__ == '__main__':
     init_database()
     print("🏦 Banco Nacional - Sistema iniciado en http://127.0.0.1:5000")
-    print("� OAuth2 Google Integration activado")
+    print("🔓 OAuth2 Google Integration activado")
+    print("⚠️  VULNERABILIDADES ACTIVAS:")
+    print("   1. RCE en /transferencias")
+    print("   2. OAuth CSRF (state no validado)")
+    print("   3. Client Secret expuesto en /oauth/info")
+    print("   4. Reutilización de códigos OAuth")
     
     app.run(debug=True, host='0.0.0.0', port=5000)
