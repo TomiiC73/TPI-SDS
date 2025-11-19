@@ -209,12 +209,21 @@
         </div>
         
         <div class="credentials-box">
-            <h4><i class="fas fa-key"></i> Tus Credenciales de Google</h4>
-            <p>Para este desafío, utilizarás las siguientes credenciales:</p>
+            <h4><i class="fas fa-key"></i> Credenciales para el Desafío</h4>
+            <p><strong>👤 TU CUENTA (Atacante):</strong></p>
             <ul>
                 <li><strong>Email:</strong> <code>test@google.com</code></li>
                 <li><strong>Contraseña:</strong> <code>test123</code></li>
-                <li><strong>URL del Banco:</strong> <a href="http://127.0.0.1:5000" target="_blank">http://127.0.0.1:5000</a></li>
+            </ul>
+            <p><strong>👤 CUENTA DE MARÍA (Víctima):</strong></p>
+            <ul>
+                <li><strong>Email:</strong> <code>usuario@google.com</code></li>
+                <li><strong>Contraseña:</strong> <code>google123</code></li>
+            </ul>
+            <p><strong>🌐 URLs:</strong></p>
+            <ul>
+                <li><strong>Banco Nacional:</strong> <a href="http://127.0.0.1:5000" target="_blank">http://127.0.0.1:5000</a></li>
+                <li><strong>Documentación:</strong> <a href="/docs/GUIA_PRACTICA_OAUTH.md" target="_blank">Guía Práctica Paso a Paso</a></li>
             </ul>
         </div>
         
@@ -248,9 +257,25 @@
             <ul>
                 <li><strong>Burp Suite:</strong> Para interceptar y manipular peticiones HTTP</li>
                 <li><strong>Proxy configurado:</strong> Configura tu navegador para usar 127.0.0.1:8080</li>
-                <li><strong>Dos usuarios:</strong> Tu cuenta (test@google.com) y la de María (usa credenciales del banco)</li>
+                <li><strong>Dos sesiones/navegadores:</strong> Uno para el atacante, otro para la víctima</li>
+                <li><strong>Documentación completa:</strong> <a href="../docs/GUIA_PRACTICA_OAUTH.md" target="_blank">Ver guía paso a paso</a></li>
             </ul>
-            <p class="mt-3"><strong>Pista clave:</strong> Cuando captures el <code>state</code> de tu sesión, ¿qué pasa si lo usas en una sesión diferente?</p>
+        </div>
+        
+        <div class="warning-box">
+            <h4><i class="fas fa-book-open"></i> Pasos Rápidos del Ataque</h4>
+            <ol class="steps-list">
+                <li><strong>Configurar Burp Suite</strong> y activar intercepción (127.0.0.1:8080)</li>
+                <li><strong>Iniciar flujo OAuth</strong> con test@google.com y capturar el <code>state</code></li>
+                <li><strong>Modificar el POST consent</strong> para agregar: <code>state=ATACANTE_12345</code></li>
+                <li><strong>Drop el request</strong> (no completar tu propio flujo todavía)</li>
+                <li><strong>Abrir navegador incógnito</strong> y hacer que María inicie OAuth con usuario@google.com</li>
+                <li><strong>Interceptar el consent de María</strong> y reemplazar su state con el tuyo</li>
+                <li><strong>Forward</strong> y capturar el código de autorización del callback</li>
+                <li><strong>Verificar el código</strong> en el campo de abajo</li>
+            </ol>
+            <p class="mt-3"><strong>💡 Pista clave:</strong> El banco NO valida que el <code>state</code> de la petición pertenezca a la sesión actual. ¡Explota esto!</p>
+            <p><strong>📖 Para instrucciones detalladas con screenshots:</strong> <a href="../docs/GUIA_PRACTICA_OAUTH.md" target="_blank"><strong>Ver Guía Completa</strong></a></p>
         </div>
         
         <div class="verification-section">

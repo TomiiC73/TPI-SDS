@@ -58,13 +58,21 @@ def verificar_oauth():
     
     # OPCIÓN 1: CSRF - State parameter
     if tipo_vulnerabilidad == 'csrf':
-        # Verificar si es un código de autorización válido manipulado
-        if len(codigo) > 30:  # Formato de código de autorización
-            return jsonify({
-                'success': True,
-                'mensaje': '¡Felicitaciones! Has explotado la vulnerabilidad CSRF.',
-                'detalle': 'Demostraste que el parámetro state NO se valida correctamente, permitiendo ataques CSRF en el flujo OAuth2. Un atacante puede vincular cuentas ajenas manipulando el state.'
-            })
+        # Verificar si es un código de autorización válido (formato base64url)
+        # Los códigos generados por secrets.token_urlsafe() tienen entre 16-32 caracteres
+        if len(codigo) >= 16 and len(codigo) <= 50:
+            # Verificar que no tenga caracteres inválidos
+            import re
+            if re.match(r'^[A-Za-z0-9_-]+$', codigo):
+                return jsonify({
+                    'success': True,
+                    'mensaje': '🎉 ¡Felicitaciones! Has explotado la vulnerabilidad CSRF en OAuth2.',
+                    'detalle': 'Demostraste que el parámetro state NO se valida correctamente, permitiendo ataques CSRF en el flujo OAuth2. Un atacante puede vincular cuentas ajenas manipulando el state.',
+                    'codigo_capturado': codigo,
+                    'vulnerabilidad': 'CWE-352: Cross-Site Request Forgery',
+                    'cvss': '8.1 (High)',
+                    'impacto': 'Account Linking Hijacking - Acceso no autorizado a información confidencial'
+                })
     
     # OPCIÓN 2: Code Reuse
     elif tipo_vulnerabilidad == 'reuse':
@@ -111,11 +119,26 @@ def verificar_oauth():
             'detalle': 'Encontraste el CLIENT_SECRET expuesto. Para desafíos avanzados, explora las vulnerabilidades del flujo OAuth2 con Burp Suite.'
         })
     
-    return jsonify({
-        'success': False,
-        'mensaje': 'Código incorrecto. Sigue intentando.',
-        'pista': 'Analiza el flujo OAuth2 con Burp Suite. Busca vulnerabilidades en: state validation, code reuse, redirect_uri, y endpoints de debugging.'
-    })
+    # Si llegamos aquí, el código no es válido
+    if len(codigo) == 0:
+        return jsonify({
+            'success': False,
+            'mensaje': '❌ Por favor ingresa el código de autorización.',
+            'pista': 'Debes completar el flujo OAuth con el state manipulado y capturar el código del callback.'
+        })
+    elif len(codigo) < 16:
+        return jsonify({
+            'success': False,
+            'mensaje': '❌ El código parece ser muy corto.',
+            'pista': 'El código de autorización debe ser el valor del parámetro "code" en la URL del callback. Ejemplo: /oauth/callback?code=CODIGO_AQUI&state=...'
+        })
+    else:
+        return jsonify({
+            'success': False,
+            'mensaje': '❌ Código no válido. Verifica que sea un código de autorización real.',
+            'pista': 'Sigue los pasos: 1) Interceptar tu flujo OAuth con Burp, 2) Modificar el state, 3) Hacer que María complete TU flujo, 4) Capturar el código del callback.',
+            'ayuda_extra': 'Revisa la documentación completa en docs/GUIA_PRACTICA_OAUTH.md'
+        })
 
 @app.route('/ayuda/rce')
 def ayuda_rce():
